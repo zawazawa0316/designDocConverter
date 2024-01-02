@@ -1,82 +1,66 @@
 package parser
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
-// ExcelParser handles the parsing of Excel files.
-type ExcelParser struct {
-	// Any configuration or dependencies needed can be added here.
+// SheetData represents the data of a single sheet.
+type SheetData struct {
+	Name  string     // Name of the sheet
+	Table [][]string // Table data in the sheet
 }
 
-// NewExcelParser creates a new instance of ExcelParser.
-func NewExcelParser() *ExcelParser {
-	return &ExcelParser{}
+// ExcelData represents the entire data of an Excel file.
+type ExcelData struct {
+	Sheets []SheetData
 }
 
-// ListFiles returns a list of Excel files in the specified path.
-func (p *ExcelParser) ListFiles(inputPath string) ([]string, error) {
-	var files []string
-
-	// Check if inputPath is a file or folder
-	fileInfo, err := os.Stat(inputPath)
-	if err != nil {
-		return nil, fmt.Errorf("error stating input path: %w", err)
-	}
-
-	if fileInfo.IsDir() {
-		// Parse all Excel files in the folder
-		err := filepath.Walk(inputPath, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if !info.IsDir() && strings.HasSuffix(info.Name(), ".xlsx") {
-				files = append(files, path)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, fmt.Errorf("error walking through the folder: %w", err)
-		}
-	} else {
-		// Check if the specified file is an Excel file
-		if !strings.HasSuffix(fileInfo.Name(), ".xlsx") {
-			return nil, errors.New("specified file is not an Excel file")
-		}
-		files = append(files, inputPath)
-	}
-
-	if len(files) == 0 {
-		return nil, errors.New("no Excel files found in the specified path")
-	}
-
-	return files, nil
-}
-
-// ParseExcelFile reads the content of an Excel file and returns the sheet data.
-func (p *ExcelParser) ParseExcelFile(filePath string) (map[string][][]string, error) {
+// ParseExcelFile parses an Excel file and extracts the data.
+func ParseExcelFile(filePath string) (*ExcelData, error) {
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error opening Excel file: %w", err)
+		return nil, fmt.Errorf("failed to open excel file: %v", err)
 	}
 
-	sheetData := make(map[string][][]string)
+	var data ExcelData
 
-	// Read all sheets in the Excel file
-	sheetList := f.GetSheetList()
-	for _, sheetName := range sheetList {
+	for _, sheetName := range f.GetSheetMap() {
 		rows, err := f.GetRows(sheetName)
 		if err != nil {
-			return nil, fmt.Errorf("error reading sheet %s: %w", sheetName, err)
+			return nil, fmt.Errorf("failed to read sheet '%s': %v", sheetName, err)
 		}
-		sheetData[sheetName] = rows
+
+		var sheetData SheetData
+		sheetData.Name = sheetName
+		sheetData.Table = make([][]string, 0)
+
+		for _, row := range rows {
+			// Ignore empty rows
+			if isEmptyRow(row) {
+				continue
+			}
+			sheetData.Table = append(sheetData.Table, row)
+		}
+
+		data.Sheets = append(data.Sheets, sheetData)
 	}
 
-	return sheetData, nil
+	if len(data.Sheets) == 0 {
+		return nil, fmt.Errorf("no valid data found in file: %s", filePath)
+	}
+
+	return &data, nil
+}
+
+// isEmptyRow checks if a row is empty.
+func isEmptyRow(row []string) bool {
+	for _, cell := range row {
+		if strings.TrimSpace(cell) != "" {
+			return false
+		}
+	}
+	return true
 }
