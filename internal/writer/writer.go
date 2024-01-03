@@ -4,17 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // WriteMarkdown writes markdown data to a .md file in the same directory as the input file.
 func WriteMarkdown(inputFilePath, markdownData string) error {
-	// Determine the output file path
-	outputFilePath := filepath.Join(filepath.Dir(inputFilePath), filepath.Base(inputFilePath)+".md")
-
-	// Check if the output file path is valid
-	if outputFilePath == "" {
-		return fmt.Errorf("invalid output file path derived from input file: %s", inputFilePath)
-	}
+	// Remove the extension from the input file name and add .md extension
+	baseName := strings.TrimSuffix(filepath.Base(inputFilePath), filepath.Ext(inputFilePath))
+	outputFilePath := filepath.Join(filepath.Dir(inputFilePath), baseName+".md")
 
 	// Write the markdown data to the file
 	err := os.WriteFile(outputFilePath, []byte(markdownData), 0644)

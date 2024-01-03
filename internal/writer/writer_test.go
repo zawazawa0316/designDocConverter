@@ -39,7 +39,7 @@ func TestWriteMarkdownWithValidData(t *testing.T) {
 // TestWriteMarkdownWithInvalidPath tests handling of invalid file paths.
 func TestWriteMarkdownWithInvalidPath(t *testing.T) {
 	markdownData := "# Test Markdown"
-	invalidPath := filepath.Join("invalid", "path", "test.md")
+	invalidPath := "/nonexistent_directory/test.md"
 	err := WriteMarkdown(invalidPath, markdownData)
 	if err == nil {
 		t.Fatalf("Expected an error for an invalid path, but did not get one")
