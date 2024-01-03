@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 // SheetData represents the data of a single sheet.
@@ -46,10 +46,6 @@ func ParseExcelFile(filePath string) (*ExcelData, error) {
 		}
 
 		data.Sheets = append(data.Sheets, sheetData)
-	}
-
-	if len(data.Sheets) == 0 {
-		return nil, fmt.Errorf("no valid data found in file: %s", filePath)
 	}
 
 	return &data, nil

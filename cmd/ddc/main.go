@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/your-username/ddc/internal/converter"
-	"github.com/your-username/ddc/internal/output"
-	"github.com/your-username/ddc/internal/parser"
+	"github.com/zawazawa0316/designDocConverter/internal/converter"
+	//	"github.com/zawazawa0316/designDocConverter/internal/output"
+	//	"github.com/zawazawa0316/designDocConverter/internal/parser"
 )
 
 func main() {
