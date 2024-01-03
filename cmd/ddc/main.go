@@ -1,59 +1,64 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/zawazawa0316/designDocConverter/internal/converter"
-	//	"github.com/zawazawa0316/designDocConverter/internal/output"
 	"github.com/zawazawa0316/designDocConverter/internal/parser"
+	"github.com/zawazawa0316/designDocConverter/internal/writer"
 )
 
 func main() {
-	// Define command-line flags
-	inputPath := flag.String("i", "", "Path to the input Excel file or folder")
-	outputPath := flag.String("o", "", "Path to the output Markdown file or folder")
-	format := flag.String("f", "md", "Output format (md, html, etc.)")
-	configPath := flag.String("c", "", "Path to the configuration file")
+	// Check if the command line argument is provided
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: designDocConverter <path_to_excel_file_or_directory>")
+		os.Exit(1)
+	}
+	inputPath := os.Args[1]
 
-	// Parse command-line flags
-	flag.Parse()
-
-	// Validate required flags
-	if *inputPath == "" || *outputPath == "" {
-		fmt.Println("Error: Both input and output paths are required.")
-		flag.PrintDefaults()
+	// Check if the path is a directory or a file
+	fileInfo, err := os.Stat(inputPath)
+	if err != nil {
+		fmt.Printf("Error accessing input path: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Create parser
-	excelParser := parser.NewExcelParser()
+	// Process a single file or all .xlsx files in the directory
+	if fileInfo.IsDir() {
+		// Process all .xlsx files in the directory
+		filepath.Walk(inputPath, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				fmt.Printf("Error accessing path %s: %v\n", path, err)
+				return err
+			}
+			if !info.IsDir() && strings.HasSuffix(path, ".xlsx") {
+				processFile(path)
+			}
+			return nil
+		})
+	} else {
+		// Process a single file
+		processFile(inputPath)
+	}
+}
 
-	// Parse Excel file or folder
-	files, err := excelParser.Parse(*inputPath)
+// processFile processes a single .xlsx file and converts it to Markdown
+func processFile(filePath string) {
+	excelData, err := parser.ParseExcelFile(filePath)
 	if err != nil {
-		log.Fatal("Error parsing Excel file/folder:", err)
+		fmt.Printf("Failed to parse Excel file %s: %v\n", filePath, err)
+		return
 	}
 
-	// Create converter
-	mdConverter := converter.NewMarkdownConverter()
-
-	// Convert Excel data to Markdown
-	mdContent, err := mdConverter.Convert(files)
+	markdownData := converter.ConvertToMarkdown(excelData)
+	err = writer.WriteMarkdown(filePath, markdownData)
 	if err != nil {
-		log.Fatal("Error converting Excel data to Markdown:", err)
+		fmt.Printf("Failed to write Markdown file for %s: %v\n", filePath, err)
+		return
 	}
 
-	// Create output handler
-	outputHandler := output.NewOutputHandler()
-
-	// Output Markdown content to file or folder
-	err = outputHandler.Output(mdContent, *outputPath, *format)
-	if err != nil {
-		log.Fatal("Error writing Markdown content to file/folder:", err)
-	}
-
-	fmt.Println("Conversion completed successfully!")
+	fmt.Printf("Markdown file created successfully for %s\n", filePath)
 }
