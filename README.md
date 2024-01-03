@@ -4,7 +4,7 @@
 DesignDocConverter (ddc) is a CLI tool that converts Excel files into Markdown format. It can process a specific xlsx file or all xlsx files within a directory.
 
 ## Usage
-After building the tool, execute `ddc` using the following command:
+After downloading the binary from the release page or building it yourself, rename the file to `ddc`  and execute the following commandv
 
 ```sh
 ./ddc <path_to_excel_file_or_directory>
