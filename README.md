@@ -1,43 +1,52 @@
+# DesignDocConverter (ddc)
+
 ## Overview
-
-`ddc` (designDocConverter) is a command-line tool designed to convert Excel files to Markdown format. With this tool, you can easily transform Excel-based design documents into Markdown format.
-
-## Installation
-
-1. Download the appropriate binary for your platform from the GitHub release page.
-2. Place the downloaded binary in a suitable location and add it to your executable path.
+DesignDocConverter (ddc) is a CLI tool that converts Excel files into Markdown format. It can process a specific xlsx file or all xlsx files within a directory.
 
 ## Usage
+After building the tool, execute `ddc` using the following command:
 
-```bash
-ddc [OPTIONS] input_path output_path
-```
-input_path: The path to the Excel file or folder to be converted.
-output_path: The path to the Markdown file or folder where the conversion result will be stored.
-Options
--h, --help: Display the help message.
-
--f, --format FORMAT: Specify the output format. The default is Markdown, but other formats are also available.
-```bash
-ddc -f html input.xlsx output.html
+```sh
+./ddc <path_to_excel_file_or_directory>
 ```
 
--c, --config FILE: Specify a configuration file. You can use the config file to define conversion options.
-```bash
-ddc -c config.json input.xlsx output.md
-```
-## Examples
-1. Convert a single file:
+- `<path_to_excel_file_or_directory>` should be the path to the Excel file you want to convert or a directory containing Excel files.
+- The output is generated in the same directory as the input file.
+- Sheets are converted to Markdown headings, and cell contents are formatted in a table structure.
 
-```bash
-ddc input.xlsx output.md
-```
-2. Convert all Excel files in a folder:
+### Output Sample
+For a simple Excel file with multiple sheets, the Markdown output will look like this:
 
-```bash
-ddc input_folder/ output_folder/
+```
+## Sheet1
+
+| A1 Content | B1 Content |
+| A2 Content | B2 Content |
+
+## Sheet2
+
+| A1 Content |
+| A2 Content |
 ```
 
-## Notes
-* Ensure that Excel files are in the correct format.
-* In case of errors during conversion, check the error messages for details and troubleshoot accordingly.
+This represents two sheets with their respective cell contents arranged in table format, without header rows.
+
+## Build Instructions
+Ensure your environment is set up with Go, then build the project using the following command:
+
+```sh
+go build -o ddc github.com/zawazawa0316/designDocConverter/cmd/ddc
+```
+
+This will create the `ddc` binary in your project's root directory.
+
+## Running Tests
+To run the project tests, use the following command:
+
+```sh
+go test github.com/zawazawa0316/designDocConverter/cmd/ddc
+```
+
+This command runs tests to verify the accuracy of the conversion process.
+
+---
