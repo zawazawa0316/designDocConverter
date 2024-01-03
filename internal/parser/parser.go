@@ -30,42 +30,42 @@ func isEmptyRow(row []string) bool {
 
 // isColumnEmpty checks if a column is entirely empty.
 func isColumnEmpty(rows [][]string, columnIndex int) bool {
-    for _, row := range rows {
-        if columnIndex < len(row) && strings.TrimSpace(row[columnIndex]) != "" {
-            return false
-        }
-    }
-    return true
+	for _, row := range rows {
+		if columnIndex < len(row) && strings.TrimSpace(row[columnIndex]) != "" {
+			return false
+		}
+	}
+	return true
 }
 
 // removeEmptyColumns removes columns that are completely empty.
 func removeEmptyColumns(rows [][]string) [][]string {
-    var nonEmptyColumnIndexes []int
-    if len(rows) == 0 {
-        return rows
-    }
+	var nonEmptyColumnIndexes []int
+	if len(rows) == 0 {
+		return rows
+	}
 
-    // Find indexes of columns that are not empty
-    for i := 0; i < len(rows[0]); i++ {
-        if !isColumnEmpty(rows, i) {
-            nonEmptyColumnIndexes = append(nonEmptyColumnIndexes, i)
-        }
-    }
+	// Find indexes of columns that are not empty
+	for i := 0; i < len(rows[0]); i++ {
+		if !isColumnEmpty(rows, i) {
+			nonEmptyColumnIndexes = append(nonEmptyColumnIndexes, i)
+		}
+	}
 
-    // Keep only data from non-empty columns
-    var newRows [][]string
-    for _, row := range rows {
-        var newRow []string
-        for _, idx := range nonEmptyColumnIndexes {
-            if idx < len(row) {
-                newRow = append(newRow, row[idx])
-            } else {
-                newRow = append(newRow, "")
-            }
-        }
-        newRows = append(newRows, newRow)
-    }
-    return newRows
+	// Keep only data from non-empty columns
+	var newRows [][]string
+	for _, row := range rows {
+		var newRow []string
+		for _, idx := range nonEmptyColumnIndexes {
+			if idx < len(row) {
+				newRow = append(newRow, row[idx])
+			} else {
+				newRow = append(newRow, "")
+			}
+		}
+		newRows = append(newRows, newRow)
+	}
+	return newRows
 }
 
 // ParseExcelFile parses an Excel file and extracts the data.
@@ -95,9 +95,8 @@ func ParseExcelFile(filePath string) (*ExcelData, error) {
 			sheetData.Table = append(sheetData.Table, row)
 		}
 
-        // Remove empty columns
-        sheetData.Table = removeEmptyColumns(sheetData.Table)
-\
+		// Remove empty columns
+		sheetData.Table = removeEmptyColumns(sheetData.Table)
 		data.Sheets = append(data.Sheets, sheetData)
 	}
 
